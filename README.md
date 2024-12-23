@@ -27,7 +27,7 @@
 
 <div align="center">
   <img src=".github/fresh.png" width="100%">
-  <p align="center">fresh running on <a href="github.com/Alessandro-Salerno/SalernOS-Kernel">SalernOS</a></h1>
+  <p align="center">fresh running on <a href="https://github.com/Alessandro-Salerno/SalernOS-Kernel">SalernOS</a></h1>
 </div>
 
 
