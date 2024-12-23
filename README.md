@@ -1,2 +1,2 @@
 # fresh
-The (portable) freestanding shell
+The freestanding shell
