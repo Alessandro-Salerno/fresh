@@ -9,7 +9,7 @@ override OUTPUT := fresh
 
 CC := cc
 LD := ld
-CFLAGS := -g -O2 -pipe
+CFLAGS := -g -O0 -pipe
 CPPFLAGS :=
 LDFLAGS :=
 
@@ -27,6 +27,7 @@ override CFLAGS += \
     -mno-mmx \
     -mno-sse \
     -mno-sse2 \
+		-mno-red-zone \
     -m64 \
 
 override CPPFLAGS := \

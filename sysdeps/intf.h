@@ -33,6 +33,10 @@ extern const int SYS_STDERR;
 // extern const char *SYS_KERNEL_NAME;
 // extern const char *SYS_KERNEL_VERSION;
 
-int sys_write(int fd, const char *s, size_t n);
+char *sys_getenv(const char *name);
+int sys_write(int fd, const void *s, size_t n);
+int sys_read(int fd, void *buf, size_t n);
+int sys_fork(void);
+int sys_execve(const char *path, char *const argv[], char *const envp[]);
 
 #endif // !FRESH_SYSDEPS_INTF_H

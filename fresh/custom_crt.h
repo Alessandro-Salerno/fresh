@@ -19,34 +19,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-.global _start
-_start:
-  movq %rsp, %rdi
-  call salernos_trampoline
-loop:
-  jmp loop
+#ifndef CUSTOM_CRT_H
+#define CUSTOM_CRT_H
 
-.global sys_write
-sys_write:
-  movq $0x01, %rax
-  int $0x80
-  ret
+#include <stddef.h>
 
-.global sys_read
-sys_read:
-  movq $0x02, %rax
-  int $0x80
-  ret
+size_t frt_gets(char *s, size_t max_len);
 
-.global sys_fork
-sys_fork:
-  movq $0x04, %rax
-  int $0x80
-  ret
-
-.global sys_execve
-sys_execve:
-  movq $0x03, %rax
-  int $0x80
-  ret
-
+#endif // !CUSTOM_CRT_H

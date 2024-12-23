@@ -21,6 +21,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 #include <sysdeps/intf.h>
 
 extern int main(int argc, char *const argv[]);
@@ -34,18 +36,38 @@ const char *SYS_OS_VERSION = "0.0.1";
 const char *SYS_KERNEL_NAME = "SalernOS Kernel";
 const char *SYS_KERNEL_VERSION = "0.2.1";
 
-int salernos_trampoline(uintptr_t *stackptr) {
-#define STACK_POP() (*(++stackptr))
-  int argc = (int)STACK_POP();
-  char **argv = (void *)STACK_POP();
+static char **Env = NULL;
 
-  while (1) {
-    char **p = (void *)STACK_POP();
-    if (NULL == p) {
-      break;
-    }
-    argv = p;
+char *sys_getenv(const char *name) {
+  if (NULL == Env) {
+    return NULL;
   }
+
+  char *var = Env[0];
+  size_t name_len = strlen(name);
+
+  for (size_t i = 1; NULL != var; i++) {
+    if (0 == strncmp(var, name, name_len)) {
+      if ('=' == var[name_len]) {
+        return &var[name_len + 1];
+      }
+    }
+
+    var = Env[i];
+  }
+
+  return NULL;
+}
+
+int salernos_trampoline(uintptr_t *stackptr) {
+#define STACK_POP() (*(stackptr++))
+  int argc = (int)STACK_POP();
+  char **argv = (char **)stackptr;
+
+  while (0 != STACK_POP())
+    ;
+
+  Env = (char **)stackptr;
 
   return main(argc, argv);
 }

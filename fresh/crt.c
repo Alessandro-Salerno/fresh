@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,6 +34,16 @@ int strcmp(const char *s1, const char *s2) {
 
     s1++;
     s2++;
+  }
+
+  return 0;
+}
+
+int strncmp(const char *s1, const char *s2, size_t n) {
+  for (size_t i = 0; i < n; i++) {
+    if (s1[i] != s2[i]) {
+      return -1;
+    }
   }
 
   return 0;
@@ -211,4 +222,12 @@ int printf(const char *fmt, ...) {
   int ret = vprintf(fmt, _arguments);
   va_end(_arguments);
   return ret;
+}
+
+char *getenv(const char *name) { return sys_getenv(name); }
+
+char *gets(char *s) {
+  int len = sys_read(SYS_STDIN, s, 2048);
+  s[len] = 0;
+  return s;
 }
