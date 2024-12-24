@@ -25,5 +25,8 @@
 size_t frt_gets(char *s, size_t max_len) {
   int len = sys_read(SYS_STDIN, s, max_len - 1);
   s[len] = 0;
+  if (len > 0 && '\n' == s[len - 1]) {
+    s[len - 1] = 0;
+  }
   return len;
 }
