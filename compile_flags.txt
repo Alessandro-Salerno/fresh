@@ -1,1 +1,2 @@
 -I./
+-I./subprojects/
