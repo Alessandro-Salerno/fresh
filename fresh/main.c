@@ -19,12 +19,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
+#include <errno.h>
 #include <fresh/custom_crt.h>
+#include <fresh/parse.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sysdeps/intf.h>
+
 const char *SHELL_LOGO = "              ooooooooooo\n"
                          "          ooooooooooooooooooo\n"
                          "       oooooooo   oooo   oooooooo\n"
@@ -116,13 +120,30 @@ int main(int argc, char *const argv[]) {
          "https://ascii.co.uk/art/peace\n");
   printf("> fresh stands for freedom (do you get the pun?)\n\n");
 
-  char *envp[] = {"TERM=bsd", NULL};
-
   while (1) {
-    char buf[128];
+    char buf[2048];
     printf("fresh-0.0.1 # ");
-    frt_gets(buf, 128);
-    int r = sys_execve(buf, argv, envp);
+    frt_gets(buf, 2048);
+
+    char *argbuf[8 * 128] = {0};
+    char *envbuf[8 * 128] = {0};
+
+    switch (fresh_parse(buf, strlen(buf), (uintptr_t *)argbuf, 128,
+                        (uintptr_t *)envbuf, 128)) {
+    case -1:
+      printf("fresh: invalid syntax\n");
+      break;
+
+    case ENOMEM:
+      printf("fresh: out of memory\n");
+      break;
+
+    case 0:
+      if (0 != sys_execve(argbuf[0], argbuf, envbuf)) {
+        printf("fresh: %s: command not found\n", argbuf[0]);
+      }
+      break;
+    }
   }
 
   return 0;
