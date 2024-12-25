@@ -51,3 +51,8 @@ sys_execve:
   movq %rdx, %rax
   ret
 
+.global salernos_sysinfo
+salernos_sysinfo:
+  movq $0x05, %rax
+  int $0x80
+  ret

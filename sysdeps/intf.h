@@ -28,10 +28,11 @@ extern const int SYS_STDOUT;
 extern const int SYS_STDIN;
 extern const int SYS_STDERR;
 
-// extern const char *SYS_OS_NAME;
-// extern const char *SYS_OS_VERSION;
-// extern const char *SYS_KERNEL_NAME;
-// extern const char *SYS_KERNEL_VERSION;
+extern const char *SYS_OS_NAME;
+extern const char *SYS_KERNEL_NAME;
+extern const char *SYS_CPU_NAME;
+extern const char *SYS_GPU_NAME;
+extern const char *SYS_MEMORY;
 
 char *sys_getenv(const char *name);
 int sys_write(int fd, const void *s, size_t n);

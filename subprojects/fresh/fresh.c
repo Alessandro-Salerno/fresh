@@ -29,6 +29,11 @@
 #include <string.h>
 #include <sysdeps/intf.h>
 
+struct strtup {
+  const char *s1;
+  const char *s2;
+};
+
 static const char *SHELL_LOGO = "              ooooooooooo\n"
                                 "          ooooooooooooooooooo\n"
                                 "       oooooooo   oooo   oooooooo\n"
@@ -68,20 +73,18 @@ static void print_logo(void) {
   size_t color_idx = 0;
 
   // hacky thing for testing
-  const char *data[] = {NULL,
-                        NULL,
-                        NULL,
-                        NULL,
-                        "       \033[0;34mfresh 0.0.1",
-                        "      -----------",
-                        "      \033[0;34mOS\033[0;0m:     "
-                        "SalernOS"
-                        " "
-                        "0.0.1",
-                        "     \033[0;34mKernel\033[0;0m: "
-                        "SalernOS Kernel"
-                        " "
-                        "0.2.1"};
+  struct strtup data[] = {
+      {NULL, NULL},
+      {NULL, NULL},
+      {NULL, NULL},
+      {NULL, NULL},
+      {"            \033[0;34mfresh 0.0.1", ""},
+      {"           -----------", ""},
+      {"           \033[0;34mOS\033[0;0m:      ", SYS_OS_NAME},
+      {"          \033[0;34mKernel\033[0;0m:  ", SYS_KERNEL_NAME},
+      {"          \033[0;34mCPU\033[0;0m:     ", SYS_CPU_NAME},
+      {"           \033[0;34mGPU:\033[0;0m:    ", SYS_GPU_NAME},
+      {"           \033[0;34mMemory:\033[0;0m: ", SYS_MEMORY}};
 
   for (size_t i = 0; i < logo_len; i++) {
     if (0 == line_i) {
@@ -95,8 +98,14 @@ static void print_logo(void) {
     }
 
     if ('\n' == SHELL_LOGO[i]) {
-      if (line < 8 && NULL != data[line]) {
-        printf("\033[0;0m%s", data[line]);
+      if (line < 11 && NULL != data[line].s1) {
+        printf("\033[0;0m%s", data[line].s1);
+
+        if (NULL != data[line].s2) {
+          printf("%s", data[line].s2);
+        } else {
+          printf("N/A");
+        }
       }
 
       line++;
