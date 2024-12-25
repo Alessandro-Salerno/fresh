@@ -39,9 +39,9 @@ override LDFLAGS += \
     -static \
     -z max-page-size=0x1000 
 
-override SYSDEPS_CFILES = $(call rwildcard, sysdeps/, *c) 
-override CRT_CFILES = $(call rwildcard, crt/, *c)
-override CFILES = $(call rwildcard, subprojects/$(OUTPUT)/, *c)
+override SYSDEPS_CFILES = $(call rwildcard, sysdeps/$(PLATFORM)/, *.c) 
+override CRT_CFILES = $(call rwildcard, crt/, *.c)
+override CFILES = $(call rwildcard, subprojects/$(OUTPUT)/, *.c)
 override ASFILES = $(call rwildcard, sysdeps/$(PLATFORM), *.S)
 override OBJ = $(addprefix obj/,$(CFILES:.c=.c.o))
 override CRT_OBJ = $(addprefix obj/,$(CRT_CFILES:.c=.c.o))
@@ -69,7 +69,7 @@ project: bin/$(OUTPUT)
 bin/$(OUTPUT): GNUmakefile $(OBJ)
 	@echo [LD] Linking...
 	@mkdir -p "$$(dirname $@)"
-	$(LD) $(OBJ) $(SYSDEPS_OBJ) $(CRT_OBJ) $(LDFLAGS) -o $@
+	@$(LD) $(OBJ) $(SYSDEPS_OBJ) $(CRT_OBJ) $(LDFLAGS) -o $@
 
 # Include header dependencies.
 -include $(HEADER_DEPS)

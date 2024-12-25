@@ -29,22 +29,22 @@
 #include <string.h>
 #include <sysdeps/intf.h>
 
-const char *SHELL_LOGO = "              ooooooooooo\n"
-                         "          ooooooooooooooooooo\n"
-                         "       oooooooo   oooo   oooooooo\n"
-                         "     ooooooo      oooo      ooooooo\n"
-                         "    oooooo        oooo        oooooo\n"
-                         "   oooooo         oooo         oooooo\n"
-                         "   ooooo          oooo          ooooo\n"
-                         "  oooooo         oooooo         oooooo\n"
-                         "  oooooo        oooooooo        oooooo\n"
-                         "   ooooo      oooooooooooo      ooooo\n"
-                         "   oooooo   oooo  oooo  oooo   oooooo\n"
-                         "    oooooooooo    oooo    oooooooooo\n"
-                         "     oooooooo     oooo     oooooooo\n"
-                         "       oooooooo   oooo   oooooooo\n"
-                         "          oooooooooooooooooooo\n"
-                         "              oooooooooooo\n";
+static const char *SHELL_LOGO = "              ooooooooooo\n"
+                                "          ooooooooooooooooooo\n"
+                                "       oooooooo   oooo   oooooooo\n"
+                                "     ooooooo      oooo      ooooooo\n"
+                                "    oooooo        oooo        oooooo\n"
+                                "   oooooo         oooo         oooooo\n"
+                                "   ooooo          oooo          ooooo\n"
+                                "  oooooo         oooooo         oooooo\n"
+                                "  oooooo        oooooooo        oooooo\n"
+                                "   ooooo      oooooooooooo      ooooo\n"
+                                "   oooooo   oooo  oooo  oooo   oooooo\n"
+                                "    oooooooooo    oooo    oooooooooo\n"
+                                "     oooooooo     oooo     oooooooo\n"
+                                "       oooooooo   oooo   oooooooo\n"
+                                "          oooooooooooooooooooo\n"
+                                "              oooooooooooo\n";
 
 int put(int c) {
   char buf[2];
@@ -112,6 +112,8 @@ static void print_logo(void) {
 }
 
 int main(int argc, char *const argv[]) {
+  (void)argc;
+  (void)argv;
   print_logo();
   printf("Welcome to fresh, the freestanding shell!\n");
   printf("Copyright (C) 2024 Alessandro Salerno\n\n");
