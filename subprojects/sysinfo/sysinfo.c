@@ -19,29 +19,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-#ifndef FRESH_SYSDEPS_INTF_H
-#define FRESH_SYSDEPS_INTF_H
+#include <stdio.h>
+#include <string.h>
+#include <sysdeps/intf.h>
 
-#include <stddef.h>
+int main(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
+  char used_mem[24] = {0};
+  char tot_mem[24] = {0};
 
-extern const int SYS_STDOUT;
-extern const int SYS_STDIN;
-extern const int SYS_STDERR;
+  uitoa(SYS_USED_MEMORY, used_mem, 10);
+  uitoa(SYS_TOTAL_MEMORY, tot_mem, 10);
 
-extern const char *SYS_OS_NAME;
-extern const char *SYS_KERNEL_NAME;
-extern const char *SYS_CPU_NAME;
-extern const char *SYS_GPU_NAME;
-extern const char *SYS_MEMORY;
-extern const size_t SYS_USED_MEMORY;
-extern const size_t SYS_TOTAL_MEMORY;
+  printf("Used memory: %s byte(s)\n", used_mem);
+  printf("Total system memory: %s byte(s)\n", tot_mem);
 
-char *sys_getenv(const char *name);
-int sys_write(int fd, const void *s, size_t n);
-int sys_read(int fd, void *buf, size_t n);
-int sys_fork(void);
-int sys_execve(const char *path, char *const argv[], char *const envp[]);
-__attribute__((noreturn)) void sys_exit(int status);
-int sys_waitpid(int pid, int *status, int flags);
-
-#endif // !FRESH_SYSDEPS_INTF_H
+  return 0;
+}

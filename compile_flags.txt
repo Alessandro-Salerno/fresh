@@ -1,2 +1,5 @@
 -I./
 -I./subprojects/
+-I./crt/
+-nostdinc
+

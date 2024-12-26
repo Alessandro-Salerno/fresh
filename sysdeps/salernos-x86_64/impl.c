@@ -24,8 +24,6 @@
 #include <string.h>
 #include <sysdeps/intf.h>
 
-char *itoa(long val, char *s, unsigned long base);
-
 struct salernos_sysinfo {
   char cpu[64];
   char gpu[64];
@@ -46,6 +44,8 @@ const char *SYS_KERNEL_NAME = NULL;
 const char *SYS_CPU_NAME = NULL;
 const char *SYS_GPU_NAME = NULL;
 const char *SYS_MEMORY = NULL;
+const size_t SYS_USED_MEMORY;
+const size_t SYS_TOTAL_MEMORY;
 
 static char **Env = NULL;
 static struct salernos_sysinfo SysInfo;
@@ -83,6 +83,8 @@ int salernos_trampoline(unsigned long *stackptr) {
 
   salernos_sysinfo(&SysInfo);
   SYS_KERNEL_NAME = SysInfo.kernel;
+  *(size_t *)&SYS_USED_MEMORY = SysInfo.used_mem;
+  *(size_t *)&SYS_TOTAL_MEMORY = SysInfo.sys_mem;
 
   char memory[64];
   itoa(SysInfo.used_mem / (1024UL * 1024UL), memory, 10);
