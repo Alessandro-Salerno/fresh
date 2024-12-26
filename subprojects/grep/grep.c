@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   char *pattern = argv[1];
   size_t pattern_len = strlen(pattern);
 
-  char buf[204];
+  char buf[2048];
   size_t len = 0;
   size_t line_start = 0;
   bool print_rem = false;
