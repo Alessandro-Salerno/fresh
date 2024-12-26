@@ -26,17 +26,6 @@
 #include <sysdeps/intf.h>
 #include <threads.h>
 
-char gc(void) {
-  char buf[2];
-  size_t n = sys_read(SYS_STDIN, &buf, 1);
-
-  if (0 == n) {
-    return EOF;
-  }
-
-  return buf[0];
-}
-
 int main(int argc, char *argv[]) {
   if (argc < 2) {
     printf("grep: must specify a pattern to recognize\n");
