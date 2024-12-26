@@ -19,9 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-#include <stdatomic.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <sysdeps/intf.h>
@@ -32,8 +30,8 @@ struct salernos_sysinfo {
   char cpu[64];
   char gpu[64];
   char kernel[64];
-  uintmax_t used_mem;
-  uintmax_t sys_mem;
+  unsigned long used_mem;
+  unsigned long sys_mem;
 };
 
 extern int main(int argc, char *const argv[]);
@@ -73,7 +71,7 @@ char *sys_getenv(const char *name) {
   return NULL;
 }
 
-int salernos_trampoline(uintptr_t *stackptr) {
+int salernos_trampoline(unsigned long *stackptr) {
 #define STACK_POP() (*(stackptr++))
   int argc = (int)STACK_POP();
   char **argv = (char **)stackptr;

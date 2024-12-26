@@ -19,13 +19,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-#include <errno.h>
 #include <fresh/custom_crt.h>
 #include <fresh/parse.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sysdeps/intf.h>
 
@@ -139,21 +136,34 @@ int main(int argc, char *const argv[]) {
     char *argbuf[8 * 128] = {0};
     char *envbuf[8 * 128] = {0};
 
-    switch (fresh_parse(buf, strlen(buf), (uintptr_t *)argbuf, 128,
-                        (uintptr_t *)envbuf, 128)) {
+    switch (fresh_parse(buf, strlen(buf), (unsigned long *)argbuf, 128,
+                        (unsigned long *)envbuf, 128)) {
     case -1:
       printf("fresh: invalid syntax\n");
       break;
 
-    case ENOMEM:
+    case -2:
       printf("fresh: out of memory\n");
       break;
 
-    case 0:
-      if (0 != sys_execve(argbuf[0], argbuf, envbuf)) {
-        printf("fresh: %s: command not found\n", argbuf[0]);
+    case 0: {
+      int pid = sys_fork();
+      if (pid < 0) {
+        printf("fresh: unable to fork\n");
+        break;
       }
-      break;
+
+      if (0 == pid) {
+        if (0 != sys_execve(argbuf[0], argbuf, envbuf)) {
+          printf("fresh: %s: command not found\n", argbuf[0]);
+          sys_exit(-1);
+        }
+        break;
+      }
+
+      int status;
+      sys_waitpid(pid, &status, 0);
+    }
     }
   }
 

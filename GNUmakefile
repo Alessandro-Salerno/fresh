@@ -12,7 +12,9 @@ CPPFLAGS :=
 LDFLAGS :=
 
 override CFLAGS += \
+		-nostdinc \
 		-I./ \
+		-I./crt/ \
 		-I./subprojects/ \
     -Wall \
     -Wextra \

@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
 #include <stddef.h>
-#include <stdint.h>
 
-int fresh_parse(char *s, size_t len, uintptr_t *argbuf, size_t argbufsz,
-                uintptr_t *envbuf, size_t envbufsz);
+int fresh_parse(char *s, size_t len, unsigned long *argbuf, size_t argbufsz,
+                unsigned long *envbuf, size_t envbufsz);

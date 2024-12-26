@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <sysdeps/intf.h>
-#include <threads.h>
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {

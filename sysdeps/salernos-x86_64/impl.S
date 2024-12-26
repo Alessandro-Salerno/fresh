@@ -23,8 +23,9 @@
 _start:
   movq %rsp, %rdi
   call salernos_trampoline
-loop:
-  jmp loop
+  movq %rax, %rdi
+  movq $0x07, %rax
+  int $0x80
 
 .global sys_write
 sys_write:
@@ -54,5 +55,17 @@ sys_execve:
 .global salernos_sysinfo
 salernos_sysinfo:
   movq $0x05, %rax
+  int $0x80
+  ret
+
+.global sys_exit
+sys_exit:
+  movq $0x07, %rax
+  int $0x80
+  ret
+
+.global sys_waitpid
+sys_waitpid:
+  movq $0x06, %rax
   int $0x80
   ret

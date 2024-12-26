@@ -19,27 +19,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-#ifndef FRESH_SYSDEPS_INTF_H
-#define FRESH_SYSDEPS_INTF_H
+#ifndef CRT_STDIO_H
+#define CRT_STDIO_H
 
-#include <stddef.h>
+#include <stdarg.h>
 
-extern const int SYS_STDOUT;
-extern const int SYS_STDIN;
-extern const int SYS_STDERR;
+#define EOF (-1)
 
-extern const char *SYS_OS_NAME;
-extern const char *SYS_KERNEL_NAME;
-extern const char *SYS_CPU_NAME;
-extern const char *SYS_GPU_NAME;
-extern const char *SYS_MEMORY;
+int vprintf(const char *fmt, va_list args);
+int printf(const char *fmt, ...);
+char *gets(char *s);
 
-char *sys_getenv(const char *name);
-int sys_write(int fd, const void *s, size_t n);
-int sys_read(int fd, void *buf, size_t n);
-int sys_fork(void);
-int sys_execve(const char *path, char *const argv[], char *const envp[]);
-__attribute__((noreturn)) void sys_exit(int status);
-int sys_waitpid(int pid, int *status, int flags);
-
-#endif // !FRESH_SYSDEPS_INTF_H
+#endif

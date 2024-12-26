@@ -19,10 +19,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-#include <errno.h>
 #include <fresh/parse.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
 
 int find_next_space(char *s, size_t i, size_t len) {
@@ -35,8 +33,8 @@ int find_next_space(char *s, size_t i, size_t len) {
   return -1;
 }
 
-int fresh_parse(char *s, size_t len, uintptr_t *argbuf, size_t argbufsz,
-                uintptr_t *envbuf, size_t envbufsz) {
+int fresh_parse(char *s, size_t len, unsigned long *argbuf, size_t argbufsz,
+                unsigned long *envbuf, size_t envbufsz) {
   size_t start_idx = 0;
   size_t argbuuf_next = 0;
   size_t envbuf_next = 0;
@@ -52,10 +50,10 @@ int fresh_parse(char *s, size_t len, uintptr_t *argbuf, size_t argbufsz,
       s[next_space] = 0;
 
       if (envbuf_next == envbufsz) {
-        return ENOMEM;
+        return -2;
       }
 
-      envbuf[envbuf_next] = (uintptr_t)&s[start_idx];
+      envbuf[envbuf_next] = (unsigned long)&s[start_idx];
       envbuf_next++;
       start_idx = next_space + 1;
       i = next_space;
@@ -64,10 +62,10 @@ int fresh_parse(char *s, size_t len, uintptr_t *argbuf, size_t argbufsz,
 
     if (' ' == s[i]) {
       if (argbuuf_next >= argbufsz) {
-        return ENOMEM;
+        return -2;
       }
 
-      argbuf[argbuuf_next] = (uintptr_t)&s[start_idx];
+      argbuf[argbuuf_next] = (unsigned long)&s[start_idx];
       argbuuf_next++;
       s[i] = 0;
       start_idx = i + 1;
@@ -78,17 +76,17 @@ int fresh_parse(char *s, size_t len, uintptr_t *argbuf, size_t argbufsz,
   s[len] = 0;
 
   if (argbuuf_next + 1 >= argbufsz) {
-    return ENOMEM;
+    return -2;
   }
 
   if (envbuf_next >= envbufsz) {
-    return ENOMEM;
+    return -2;
   }
 
-  argbuf[argbuuf_next] = (uintptr_t)&s[start_idx];
+  argbuf[argbuuf_next] = (unsigned long)&s[start_idx];
   argbuuf_next++;
 
-  argbuf[argbuuf_next] = (uintptr_t)NULL;
-  envbuf[envbuf_next] = (uintptr_t)NULL;
+  argbuf[argbuuf_next] = (unsigned long)NULL;
+  envbuf[envbuf_next] = (unsigned long)NULL;
   return 0;
 }
