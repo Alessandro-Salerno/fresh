@@ -69,3 +69,9 @@ sys_waitpid:
   movq $0x06, %rax
   int $0x80
   ret
+
+.global salernos_open
+salernos_open:
+  movq $0x09, %rax
+  int $0x80
+  ret

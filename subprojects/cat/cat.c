@@ -19,30 +19,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-#ifndef FRESH_SYSDEPS_INTF_H
-#define FRESH_SYSDEPS_INTF_H
-
+#include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <sysdeps/intf.h>
 
-extern const int SYS_STDOUT;
-extern const int SYS_STDIN;
-extern const int SYS_STDERR;
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    printf("cat: must specify path to a file\n");
+    return -1;
+  }
 
-extern const char *SYS_OS_NAME;
-extern const char *SYS_KERNEL_NAME;
-extern const char *SYS_CPU_NAME;
-extern const char *SYS_GPU_NAME;
-extern const char *SYS_MEMORY;
-extern const size_t SYS_USED_MEMORY;
-extern const size_t SYS_TOTAL_MEMORY;
+  char *path = argv[1];
+  char buf[2048];
+  size_t len = 0;
 
-char *sys_getenv(const char *name);
-int sys_write(int fd, const void *s, size_t n);
-int sys_read(int fd, void *buf, size_t n);
-int sys_fork(void);
-int sys_execve(const char *path, char *const argv[], char *const envp[]);
-__attribute__((noreturn)) void sys_exit(int status);
-int sys_waitpid(int pid, int *status, int flags);
-int sys_open(const char *path, int flags);
+  int fd = sys_open(path, 0);
 
-#endif // !FRESH_SYSDEPS_INTF_H
+  while (0 != (len = sys_read(fd, buf, 2047))) {
+    buf[len] = 0;
+    sys_write(SYS_STDOUT, buf, len);
+  }
+
+  return 0;
+}

@@ -34,6 +34,8 @@ struct salernos_sysinfo {
 
 extern int main(int argc, char *const argv[]);
 extern void salernos_sysinfo(void *buf);
+extern int salernos_open(const char *path, unsigned long pathlen,
+                         unsigned long flags);
 
 const int SYS_STDOUT = 0;
 const int SYS_STDIN = 1;
@@ -71,6 +73,10 @@ char *sys_getenv(const char *name) {
   return NULL;
 }
 
+int sys_open(const char *path, int flags) {
+  return salernos_open(path, strlen(path), (unsigned long)flags);
+}
+
 int salernos_trampoline(unsigned long *stackptr) {
 #define STACK_POP() (*(stackptr++))
   int argc = (int)STACK_POP();
@@ -85,6 +91,8 @@ int salernos_trampoline(unsigned long *stackptr) {
   SYS_KERNEL_NAME = SysInfo.kernel;
   *(size_t *)&SYS_USED_MEMORY = SysInfo.used_mem;
   *(size_t *)&SYS_TOTAL_MEMORY = SysInfo.sys_mem;
+  SYS_CPU_NAME = NULL;
+  SYS_GPU_NAME = NULL;
 
   char memory[64];
   itoa(SysInfo.used_mem / (1024UL * 1024UL), memory, 10);
