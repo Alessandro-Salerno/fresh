@@ -23,11 +23,20 @@
 #define CRT_STDIO_H
 
 #include <stdarg.h>
+#include <sysdeps/intf.h>
+
+#define STDIN_FILENO SYS_STDIN
+#define STDOUT_FILENO SYS_STDOUT
+#define STDERR_FILENO SYS_STDERR
+
+#define read(...) sys_read(__VA_ARGS__)
+#define write(...) sys_write(__VA_ARGS__)
 
 #define EOF (-1)
 
 int vprintf(const char *fmt, va_list args);
 int printf(const char *fmt, ...);
 char *gets(char *s);
+void perror(const char *s);
 
 #endif

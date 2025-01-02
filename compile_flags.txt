@@ -1,5 +1,6 @@
 -I./
 -I./subprojects/
 -I./crt/
+-I./sysdeps/salernos-x86_64/
 -nostdinc
 

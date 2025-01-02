@@ -25,7 +25,5 @@
 #define NULL ((void *)0)
 
 typedef unsigned long long size_t;
-typedef unsigned long long uintmax_t;
-typedef long long intmax_t;
 
 #endif

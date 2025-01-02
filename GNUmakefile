@@ -16,6 +16,7 @@ override CFLAGS += \
 		-I./ \
 		-I./crt/ \
 		-I./subprojects/ \
+		-I./sysdeps/$(PLATFORM) \ 
     -Wall \
     -Wextra \
     -std=gnu11 \

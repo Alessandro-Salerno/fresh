@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sysdeps/intf.h>
 
@@ -229,4 +230,38 @@ char *gets(char *s) {
   int len = sys_read(SYS_STDIN, s, 2048);
   s[len] = 0;
   return s;
+}
+
+void perror(const char *s) { printf("ERROR: %s\n", s); }
+
+void *malloc(size_t size) {
+  static char malloc_buf[1024UL * 1024UL];
+  static size_t malloc_off;
+
+  if (malloc_off + sizeof(size_t) + size < sizeof(malloc_buf)) {
+    size_t *sizebuf = (size_t *)&malloc_buf[malloc_off];
+    *sizebuf = size;
+    malloc_off += sizeof(size_t);
+    void *ret = &malloc_buf[malloc_off];
+    malloc_off += size;
+    return ret;
+  }
+
+  return NULL;
+}
+
+void free(void *p) {
+  // TODO: implement this properly
+}
+
+void *realloc(void *p, size_t size) {
+  void *nbuf = malloc(size);
+  if (NULL == nbuf) {
+    return NULL;
+  }
+
+  size_t *sizebuf = (size_t *)((char *)p - sizeof(size_t));
+  size_t old_size = *sizebuf;
+  memcpy(nbuf, p, old_size);
+  free(p);
 }
