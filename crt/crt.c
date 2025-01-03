@@ -19,6 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -348,7 +349,7 @@ char *gets(char *s) {
 void perror(const char *s) { printf("ERROR: %s\n", s); }
 
 void *malloc(size_t size) {
-  static char malloc_buf[1024UL * 1024UL];
+  static char malloc_buf[1024UL * 1024UL * 128];
   static size_t malloc_off;
 
   if (malloc_off + sizeof(size_t) + size < sizeof(malloc_buf)) {
@@ -360,6 +361,8 @@ void *malloc(size_t size) {
     return ret;
   }
 
+  printf("ERROR: out of memory. aborting\n");
+  exit(ENOMEM);
   return NULL;
 }
 
@@ -369,13 +372,17 @@ void free(void *p) {
 
 void *realloc(void *p, size_t size) {
   void *nbuf = malloc(size);
+
   if (NULL == nbuf) {
     return NULL;
   }
 
-  size_t *sizebuf = (size_t *)((char *)p - sizeof(size_t));
-  size_t old_size = *sizebuf;
-  memcpy(nbuf, p, old_size);
-  free(p);
+  if (NULL != p) {
+    size_t *sizebuf = (size_t *)((char *)p - sizeof(size_t));
+    size_t old_size = *sizebuf;
+    memcpy(nbuf, p, old_size);
+    free(p);
+  }
+
   return nbuf;
 }

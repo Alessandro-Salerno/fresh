@@ -75,3 +75,10 @@ salernos_open:
   movq $0x09, %rax
   int $0x80
   ret
+
+.global sys_ioctl
+sys_ioctl:
+  mov $0x08, %rax
+  int $0x80
+  ret
+

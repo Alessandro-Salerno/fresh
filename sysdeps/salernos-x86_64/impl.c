@@ -19,6 +19,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
+#include "sys/ioctl.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -51,6 +52,12 @@ const size_t SYS_TOTAL_MEMORY;
 
 static char **Env = NULL;
 static struct salernos_sysinfo SysInfo;
+
+int tcsetattr(int fd, int opt, void *termios) {
+  return sys_ioctl(fd, TCSETS, termios);
+}
+
+int tcgetattr(int fd, void *termios) { return sys_ioctl(fd, TCGETS, termios); }
 
 char *sys_getenv(const char *name) {
   if (NULL == Env) {
