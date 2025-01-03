@@ -82,3 +82,8 @@ sys_ioctl:
   int $0x80
   ret
 
+.global salernos_mmap
+salernos_mmap:
+  mov $0x0A, %rax
+  int $0x80
+  ret

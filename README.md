@@ -41,4 +41,6 @@ The "fre" in `fresh` stands for "freestanding", this means that `fresh` is 100% 
 Currently, `fresh` only has partial support for SalernOS Kernel 0.2.1.
 
 ## License
-`fresh` is distributed under the MIT license. See LICENSE for more details.
+`fresh`, and all other "original" subprojects are distributed under the MIT license. See LICENSE for details.
+
+This repository, however, contains several subprojects which may be redistributions of free and open source software authored by third parties. Credit and licenses for these modules are included in the relevant source files.

@@ -3,4 +3,6 @@
 -I./crt/
 -I./sysdeps/salernos-x86_64/
 -nostdinc
+-Wall
+-Wextra
 

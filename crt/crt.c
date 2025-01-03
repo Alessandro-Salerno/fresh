@@ -27,6 +27,9 @@
 #include <string.h>
 #include <sysdeps/intf.h>
 
+extern int main(int argc, char *const argv[]);
+static void (*Exitfn)() = NULL;
+
 void memset(void *buff, int val, size_t buffsize) {
   // Use compiler optiimzations for better performance
   for (size_t i = 0; i < buffsize; i++)
@@ -348,41 +351,57 @@ char *gets(char *s) {
 
 void perror(const char *s) { printf("ERROR: %s\n", s); }
 
-void *malloc(size_t size) {
-  static char malloc_buf[1024UL * 1024UL * 128];
-  static size_t malloc_off;
+int atexit(void (*fn)()) {
+  Exitfn = fn;
+  return 0;
+}
 
-  if (malloc_off + sizeof(size_t) + size < sizeof(malloc_buf)) {
-    size_t *sizebuf = (size_t *)&malloc_buf[malloc_off];
-    *sizebuf = size;
-    malloc_off += sizeof(size_t);
-    void *ret = &malloc_buf[malloc_off];
-    malloc_off += size;
-    return ret;
+int crt_entry(int argc, char *const argv[]) {
+  int ret = main(argc, argv);
+
+  if (NULL != Exitfn) {
+    Exitfn();
   }
 
-  printf("ERROR: out of memory. aborting\n");
-  exit(ENOMEM);
-  return NULL;
+  return ret;
 }
+
+// void *malloc(size_t size) {
+//   static char malloc_buf[1024UL * 1024UL * 128];
+//   static size_t malloc_off;
+//
+//   if (malloc_off + sizeof(size_t) + size < sizeof(malloc_buf)) {
+//     size_t *sizebuf = (size_t *)&malloc_buf[malloc_off];
+//     *sizebuf = size;
+//     malloc_off += sizeof(size_t);
+//     void *ret = &malloc_buf[malloc_off];
+//     malloc_off += size;
+//     return ret;
+//   }
+//
+//   printf("ERROR: out of memory. aborting\n");
+//   exit(ENOMEM);
+//   return NULL;
+// }
 
 void free(void *p) {
+  (void)p;
   // TODO: implement this properly
 }
-
-void *realloc(void *p, size_t size) {
-  void *nbuf = malloc(size);
-
-  if (NULL == nbuf) {
-    return NULL;
-  }
-
-  if (NULL != p) {
-    size_t *sizebuf = (size_t *)((char *)p - sizeof(size_t));
-    size_t old_size = *sizebuf;
-    memcpy(nbuf, p, old_size);
-    free(p);
-  }
-
-  return nbuf;
-}
+//
+// void *realloc(void *p, size_t size) {
+//   void *nbuf = malloc(size);
+//
+//   if (NULL == nbuf) {
+//     return NULL;
+//   }
+//
+//   if (NULL != p) {
+//     size_t *sizebuf = (size_t *)((char *)p - sizeof(size_t));
+//     size_t old_size = *sizebuf;
+//     memcpy(nbuf, p, old_size);
+//     free(p);
+//   }
+//
+//   return nbuf;
+// }

@@ -25,15 +25,11 @@
 #include <stddef.h>
 #include <sysdeps/intf.h>
 
-static inline void exit(int status) { sys_exit(status); }
-
-static inline int atexit(void (*fn)()) {
-  // TODO: sys_atexit
-  return 0;
-}
+#define exit(status) sys_exit(status)
 
 void *malloc(size_t size);
 void free(void *p);
 void *realloc(void *p, size_t size);
+int atexit(void (*fn)());
 
 #endif

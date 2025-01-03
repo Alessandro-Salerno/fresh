@@ -19,10 +19,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
-#include "sys/ioctl.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sysdeps/intf.h>
 
 struct salernos_sysinfo {
@@ -33,10 +33,11 @@ struct salernos_sysinfo {
   unsigned long sys_mem;
 };
 
-extern int main(int argc, char *const argv[]);
 extern void salernos_sysinfo(void *buf);
 extern int salernos_open(const char *path, unsigned long pathlen,
                          unsigned long flags);
+extern void *salernos_mmap(unsigned long hint, unsigned long size,
+                           unsigned long flags);
 
 const int SYS_STDOUT = 0;
 const int SYS_STDIN = 1;
@@ -49,11 +50,13 @@ const char *SYS_GPU_NAME = NULL;
 const char *SYS_MEMORY = NULL;
 const size_t SYS_USED_MEMORY;
 const size_t SYS_TOTAL_MEMORY;
+const size_t SYS_PAGE_SIZE = 4096;
 
 static char **Env = NULL;
 static struct salernos_sysinfo SysInfo;
 
 int tcsetattr(int fd, int opt, void *termios) {
+  (void)opt;
   return sys_ioctl(fd, TCSETS, termios);
 }
 
@@ -78,6 +81,15 @@ char *sys_getenv(const char *name) {
   }
 
   return NULL;
+}
+
+void *sys_mmap(void *addr, size_t len, int prot, int flags, int fildes,
+               unsigned long off) {
+  (void)addr;
+  (void)prot;
+  (void)fildes;
+  (void)off;
+  return salernos_mmap(0, len, flags);
 }
 
 int sys_open(const char *path, int flags) {
@@ -120,6 +132,6 @@ int salernos_trampoline(unsigned long *stackptr) {
   memory[p2_len + 4] = 0;
   SYS_MEMORY = memory;
 
-  return main(argc, argv);
+  return crt_entry(argc, argv);
 #undef STACK_POP
 }
