@@ -26,6 +26,63 @@
 #include <string.h>
 #include <sysdeps/intf.h>
 
+void memset(void *buff, int val, size_t buffsize) {
+  // Use compiler optiimzations for better performance
+  for (size_t i = 0; i < buffsize; i++)
+    *(char *)((unsigned long)(buff) + i) = val;
+}
+
+int memcmp(const void *buff1, const void *buff2, size_t buffsize) {
+  for (size_t i = 0; i < buffsize; i++) {
+    char buff1val = *(char *)(buff1 + i);
+    char buff2val = *(char *)(buff2 + i);
+
+    if (buff1val != buff2val) {
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+void memcpy(void *dst, const void *src, size_t buffsize) {
+  unsigned long src_off = (unsigned long)src;
+  unsigned long dst_off = (unsigned long)dst;
+
+  for (size_t i = 0; i < buffsize; i++) {
+    char val = *(char *)(src_off + i);
+    *(char *)(dst_off + i) = val;
+  }
+}
+
+void *memchr(const void *str, int c, size_t n) {
+  const char *s = str;
+  for (size_t i = 0; i < n; i++) {
+    if (c == s[i]) {
+      return (void *)&s[i];
+    }
+  }
+
+  return NULL;
+}
+
+void *memmove(void *dst, void *src, size_t n) {
+  char *pdest = (char *)dst;
+  const char *psrc = (const char *)src;
+
+  if (src > dst) {
+    for (size_t i = 0; i < n; i++) {
+      pdest[i] = psrc[i];
+    }
+  } else if (src < dst) {
+    for (size_t i = n; i > 0; i--) {
+      pdest[i - 1] = psrc[i - 1];
+    }
+  }
+
+  return dst;
+}
+
 int strcmp(const char *s1, const char *s2) {
   while (0 != *s1 || 0 != *s2) {
     if (*s1 != *s2) {
@@ -55,6 +112,62 @@ size_t strlen(const char *s) {
     n++;
   }
   return n;
+}
+
+char *strncpy(char *dst, char *src, size_t n) {
+  size_t i;
+  for (i = 0; i < n && src[i]; i++) {
+    dst[i] = src[i];
+  }
+  dst[i] = 0;
+  return dst;
+}
+
+char *strcpy(char *dst, const char *src) {
+  char *orig = dst;
+
+  while (0 != *src) {
+    *dst = *src;
+    src++;
+    dst++;
+  }
+
+  *dst = 0;
+  return orig;
+}
+
+char *strdup(char *src) {
+  size_t l = strlen(src);
+  char *buf = malloc(l + 1);
+  if (NULL == buf) {
+    return NULL;
+  }
+
+  strcpy(buf, src);
+  return buf;
+}
+
+char *strstr(const char *super, const char *sub) {
+  size_t sublen = strlen(sub);
+  size_t superlen = strlen(super);
+
+  for (size_t i = 0; i < superlen; i++) {
+    if (0 == strncmp(&super[i], sub, sublen)) {
+      return (char *)&super[i];
+    }
+  }
+
+  return NULL;
+}
+
+char *strcat(char *dest, const char *src) {
+  size_t i, j;
+  for (i = 0; 0 != dest[i]; i++)
+    ;
+  for (j = 0; 0 != src[j]; j++)
+    dest[i + j] = src[j];
+  dest[i + j] = 0;
+  return dest;
 }
 
 char *uitoa(unsigned long val, char *s, unsigned long base) {
@@ -264,4 +377,5 @@ void *realloc(void *p, size_t size) {
   size_t old_size = *sizebuf;
   memcpy(nbuf, p, old_size);
   free(p);
+  return nbuf;
 }

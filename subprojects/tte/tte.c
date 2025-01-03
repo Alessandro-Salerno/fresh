@@ -30,8 +30,6 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <signal.h>
-#include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -608,17 +606,17 @@ void editorRefreshScreen();
 
 void editorSetStatusMessage(const char *msg, ...);
 
-void consoleBufferOpen();
+void consoleBufferOpen(void);
 
-void abufFree();
+void abufFree(struct a_buf *ab);
 
-void abufAppend();
+void abufAppend(struct a_buf *ab, const char *s, int len);
 
 char *editorPrompt(char *prompt, void (*callback)(char *, int));
 
 void editorRowAppendString(editor_row *row, char *s, size_t len);
 
-void editorInsertNewline();
+void editorInsertNewline(void);
 
 /*** Terminal section ***/
 
@@ -1382,12 +1380,11 @@ void editorOpen(char *file_name) {
   if (!file)
     die("Failed to open the file");
 
-  char *line = NULL;
+  char line[1024];
   // Unsigned int of at least 16 bit.
-  size_t line_cap = 0;
   // Bigger than int
-  ssize_t line_len;
-  while ((line_len = getline(&line, &line_cap, file)) != -1) {
+  int line_len;
+  while ((line_len = fread(line, 1024, 1, file)) != -1) {
     // We already know each row represents one line of text, there's no need
     // to keep carriage return and newline characters.
     if (line_len > 0 &&
@@ -1416,18 +1413,16 @@ void editorSave() {
   // We want to create if it doesn't already exist (O_CREAT flag), giving
   // 0644 permissions (the standard ones). O_RDWR stands for reading and
   // writing.
-  int fd = open(ec.file_name, O_RDWR | O_CREAT, 0644);
+  int fd = open(ec.file_name, 0, 0644);
   if (fd != -1) {
     // ftruncate sets the file's size to the specified length.
-    if (ftruncate(fd, len) != -1) {
-      // Writing the file.
-      if (write(fd, buf, len) == len) {
-        close(fd);
-        free(buf);
-        ec.dirty = 0;
-        editorSetStatusMessage("%d bytes written to disk", len);
-        return;
-      }
+    // Writing the file.
+    if (write(fd, buf, len) == len) {
+      close(fd);
+      free(buf);
+      ec.dirty = 0;
+      editorSetStatusMessage("%d bytes written to disk", len);
+      return;
     }
     close(fd);
   }
@@ -1892,20 +1887,15 @@ void editorDrawStatusBar(struct a_buf *ab) {
   // http://vt100.net/docs/vt100-ug/chapter3.html#SGR for more info.
   abufAppend(ab, "\x1b[7m", 4);
 
-  char status[80], r_status[80];
+  char status[80] = "STATUS", r_status[80] = "R_STATUS";
   // Showing up to 20 characters of the filename, followed by the number of
   // lines.
-  int len = snprintf(status, sizeof(status), " Editing: %.20s %s",
-                     ec.file_name ? ec.file_name : "New file",
-                     ec.dirty ? "(modified)" : "");
+
   int col_size = ec.row &&ec.cursor_y <= ec.num_rows - 1
                      ? col_size = ec.row[ec.cursor_y].size
                      : 0;
-  int r_len = snprintf(
-      r_status, sizeof(r_status), "%d/%d lines  %d/%d cols ",
-      ec.cursor_y + 1 > ec.num_rows ? ec.num_rows : ec.cursor_y + 1,
-      ec.num_rows, ec.cursor_x + 1 > col_size ? col_size : ec.cursor_x + 1,
-      col_size);
+  int len = 6;
+  int r_len = 8;
   if (len > ec.screen_cols)
     len = ec.screen_cols;
   abufAppend(ab, status, len);
@@ -1930,19 +1920,19 @@ void editorDrawMessageBar(struct a_buf *ab) {
   int msg_len = strlen(ec.status_msg);
   if (msg_len > ec.screen_cols)
     msg_len = ec.screen_cols;
-  // We only show the message if its less than 5 secons old, but
-  // remember the screen is only being refreshed after each keypress.
-  if (msg_len && time(NULL) - ec.status_msg_time < 5)
+  // Here the original code did something smart which I removed because I didn't
+  // want to implement time()
+  if (msg_len)
     abufAppend(ab, ec.status_msg, msg_len);
 }
 
 void editorDrawWelcomeMessage(struct a_buf *ab) {
-  char welcome[80];
+  char welcome[120] =
+      "tte for fresh <https://github.com/GrenderG/tte>, redistributed in "
+      "<https://github.com/Alessandro-Salerno/fresh>";
   // Using snprintf to truncate message in case the terminal
   // is too tiny to handle the entire string.
-  int welcome_len =
-      snprintf(welcome, sizeof(welcome),
-               "tte %s <https://github.com/GrenderG/tte>", TTE_VERSION);
+  int welcome_len = strlen(welcome);
   if (welcome_len > ec.screen_cols)
     welcome_len = ec.screen_cols;
   // Centering the message.
@@ -1970,11 +1960,11 @@ void editorDrawWelcomeMessage(struct a_buf *ab) {
 // of reading the format string and calling va_arg() to get each
 // argument.
 void editorSetStatusMessage(const char *msg, ...) {
-  va_list args;
-  va_start(args, msg);
-  vsnprintf(ec.status_msg, sizeof(ec.status_msg), msg, args);
-  va_end(args);
-  ec.status_msg_time = time(NULL);
+  // va_list args;
+  // va_start(args, msg);
+  // vsnprintf(ec.status_msg, sizeof(ec.status_msg), msg, args);
+  // va_end(args);
+  // ec.status_msg_time = time(NULL);
 }
 
 void editorDrawRows(struct a_buf *ab) {
@@ -2008,8 +1998,11 @@ void editorDrawRows(struct a_buf *ab) {
           abufAppend(ab, &sym, 1);
           abufAppend(ab, "\x1b[m", 3);
           if (current_color != -1) {
-            char buf[16];
-            int c_len = snprintf(buf, sizeof(buf), "\x1b[%dm", current_color);
+            char buf[16] = "\x1b[";
+            itoa(current_color, &buf[2], 10);
+            int c_len = strlen(buf);
+            buf[c_len] = 'm';
+            buf[c_len + 1] = 0;
             abufAppend(ab, buf, c_len);
           }
         } else if (highlight[j] == HL_NORMAL) {
@@ -2024,8 +2017,11 @@ void editorDrawRows(struct a_buf *ab) {
           // from the last character's color.
           if (color != current_color) {
             current_color = color;
-            char buf[16];
-            int c_len = snprintf(buf, sizeof(buf), "\x1b[%dm", color);
+            char buf[16] = "\x1b[";
+            itoa(color, &buf[2], 10);
+            int c_len = strlen(buf);
+            buf[c_len] = 'm';
+            buf[c_len + 1] = 0;
             abufAppend(ab, buf, c_len);
           }
 
@@ -2058,9 +2054,14 @@ void editorRefreshScreen() {
   editorDrawMessageBar(&ab);
 
   // Moving the cursor where it should be.
-  char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (ec.cursor_y - ec.row_offset) + 1,
-           (ec.render_x - ec.col_offset) + 1);
+  char buf[32] = "\x1b[";
+  itoa(ec.cursor_y, &buf[2], 10);
+  size_t midlen = strlen(buf);
+  buf[midlen] = ';';
+  itoa(ec.cursor_x, &buf[midlen + 1], 10);
+  midlen = strlen(buf);
+  buf[midlen] = 'H';
+  buf[midlen + 1] = 0;
   abufAppend(&ab, buf, strlen(buf));
 
   // Showing again the cursor.
@@ -2206,7 +2207,7 @@ void editorProcessKeypress() {
       editorCopy(NO_STATUS);
       char *string = NULL;
       if (ec.copied_char_buffer)
-        string = strndup(ec.copied_char_buffer, strlen(ec.copied_char_buffer));
+        string = strdup(ec.copied_char_buffer);
       makeAction(CutLine, string);
     }
   } break;
@@ -2217,12 +2218,12 @@ void editorProcessKeypress() {
   case CTRL_KEY('v'): {
     char *string = NULL;
     if (ec.copied_char_buffer)
-      string = strndup(ec.copied_char_buffer, strlen(ec.copied_char_buffer));
+      string = strdup(ec.copied_char_buffer);
     makeAction(PasteLine, string);
   } break;
   case CTRL_KEY('p'):
     consoleBufferClose();
-    kill(0, SIGTSTP);
+    // kill(0, SIGTSTP);
     break;
   case ARROW_UP:
   case ARROW_DOWN:
@@ -2260,8 +2261,10 @@ void editorProcessKeypress() {
     if (c == DEL_KEY)
       editorMoveCursor(ARROW_RIGHT);
     editor_row *row = &ec.row[ec.cursor_y];
-    char *string =
-        ec.cursor_x > 0 ? strndup(&row->chars[ec.cursor_x - 1], 1) : NULL;
+    char *dupbuf = malloc(2);
+    dupbuf[0] = row->chars[ec.cursor_x - 1];
+    dupbuf[1] = 0;
+    char *string = ec.cursor_x > 0 ? dupbuf : NULL;
     makeAction(DelChar, string);
   } break;
   case CTRL_KEY('l'):
@@ -2270,20 +2273,32 @@ void editorProcessKeypress() {
   case '\t': {
     if (ec.use_tabs == 0) {
       char space = ' ';
+      char *spbuf = malloc(2);
+      spbuf[0] = space;
+      spbuf[1] = 0;
       for (int i = 0; i < TTE_TAB_STOP; i++)
-        makeAction(InsertChar, strndup(&space, 1));
-    } else
-      makeAction(InsertChar, strndup((char *)&c, 1));
-  } break;
+        makeAction(InsertChar, spbuf);
+    } else {
+      char *cbuf = malloc(2);
+      cbuf[0] = c;
+      cbuf[1] = 0;
+      makeAction(InsertChar, cbuf);
+    }
+    break;
+  }
   case CTRL_KEY('z'):
     undo();
     break;
   case CTRL_KEY('y'):
     redo();
     break;
-  default:
-    makeAction(InsertChar, strndup((char *)&c, 1));
+  default: {
+    char *cbuf = malloc(2);
+    cbuf[0] = c;
+    cbuf[1] = 0;
+    makeAction(InsertChar, cbuf);
     break;
+  }
   }
 
   quit_times = TTE_QUIT_TIMES;
@@ -2291,7 +2306,7 @@ void editorProcessKeypress() {
 
 /*** Init section ***/
 
-void initEditor() {
+void initEditor(void) {
   ec.cursor_x = 0;
   ec.cursor_y = 0;
   ec.render_x = 0;
@@ -2312,11 +2327,11 @@ void initEditor() {
   editorUpdateWindowSize();
   // The SIGWINCH signal is sent to a process when its controlling
   // terminal changes its size (a window change).
-  signal(SIGWINCH, editorHandleSigwinch);
+  // signal(SIGWINCH, editorHandleSigwinch);
   // The SIGCONT signal instructs the operating system to continue
   // (restart) a process previously paused by the SIGSTOP or SIGTSTP
   // signal.
-  signal(SIGCONT, editorHandleSigcont);
+  // signal(SIGCONT, editorHandleSigcont);
 }
 
 void printHelp() {

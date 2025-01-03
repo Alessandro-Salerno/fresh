@@ -34,6 +34,6 @@ static inline int atexit(void (*fn)()) {
 
 void *malloc(size_t size);
 void free(void *p);
-void *realloc(void *p, size_t size)
+void *realloc(void *p, size_t size);
 
 #endif

@@ -24,10 +24,24 @@
 
 #include <stddef.h>
 
+#define strchr(str, c) memchr(str, c, strlen(str))
+#define strerror(...) "[NOT IMPLEMENTED YET]"
+
 int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, size_t n);
 size_t strlen(const char *s);
 char *uitoa(unsigned long val, char *s, unsigned long base);
 char *itoa(long val, char *s, unsigned long base);
+char *strncpy(char *dst, char *src, size_t n);
+char *strcpy(char *dst, const char *src);
+char *strdup(char *src);
+char *strstr(const char *super, const char *sub);
+char *strcat(char *dest, const char *src);
+
+void memset(void *buff, int val, size_t buffsize);
+int memcmp(const void *buff1, const void *buff2, size_t buffsize);
+void memcpy(void *dst, const void *src, size_t buffsize);
+void *memchr(const void *str, int c, size_t n);
+void *memmove(void *dst, void *src, size_t n);
 
 #endif

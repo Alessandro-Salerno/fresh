@@ -31,6 +31,15 @@
 
 #define read(...) sys_read(__VA_ARGS__)
 #define write(...) sys_write(__VA_ARGS__)
+#define open(path, flags, ...) sys_open(path, flags)
+#define close(...)
+
+#define fopen(name, mode) (FILE *)(unsigned long)open(name, 0, 0)
+#define fclose(file) close((int)file)
+#define fread(p, s, sm, file) read((FILE)file, p, (s) * (sm))
+#define fwrite(p, s, sm, file) write((FILE)file, p, (s) * (sm))
+
+typedef int FILE;
 
 #define EOF (-1)
 
