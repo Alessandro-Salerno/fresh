@@ -1374,25 +1374,46 @@ void editorOpen(char *file_name) {
   editorSelectSyntaxHighlight();
 
   // If the file dosen't exist, create it, otherwise just open it
-  const char *mode = fileExists(file_name) ? "r+" : "w+";
+  // const char *mode = fileExists(file_name) ? "r+" : "w+";
 
   FILE *file = fopen(file_name, mode);
   if (!file)
     die("Failed to open the file");
 
-  char line[1024];
+  char line[1024] = {0};
   // Unsigned int of at least 16 bit.
   // Bigger than int
-  int line_len;
-  while ((line_len = fread(line, 1024, 1, file)) != -1) {
+  int line_len = 0;
+  bool run = true;
+  while (run) {
+    while (line_len < 1023) {
+      char ch = 0;
+      int nread = fread(&ch, 1, 1, file);
+
+      if (EOF == nread || 0 == nread) {
+        run = false;
+        break;
+      }
+
+      if ('\n' == ch) {
+        break;
+      }
+
+      line[line_len] = ch;
+      line_len++;
+    }
+
+    line[1023] = 0;
+    line[line_len] = 0;
+
     // We already know each row represents one line of text, there's no need
     // to keep carriage return and newline characters.
     if (line_len > 0 &&
         (line[line_len - 1] == '\n' || line[line_len - 1] == '\r'))
       line_len--;
     editorInsertRow(ec.num_rows, line, line_len);
+    line_len = 0;
   }
-  free(line);
   fclose(file);
   ec.dirty = 0;
 }
