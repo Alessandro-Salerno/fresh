@@ -35,10 +35,14 @@
 `fresh` is a work-in-progress commandline shell for SalernOS designed to be easily portable to other Unix-like operating systems.
 
 ## What's special?
-The "fre" in `fresh` stands for "freestanding", this means that `fresh` is 100% self-contained and requires no fancy OS features (e.g., dynamic linking, libc, etc.). The executable is statically linked, and the C Runtime Environment is implemented directly in the main source tree.
+The "fre" in `fresh` stands for "freestanding", this means that `fresh` is 100% self-contained and requires no fancy OS features (e.g., dynamic linking, libc, etc.). Executables are statically linked, and the C Runtime Environment is implemented directly in the main source tree. Alonside the main `fresh` commandline interpeter, this repository includes:
+- `cat`
+- `grep`
+- `echo`
+- `tte` (tiny text editor)
 
 ## State
-Currently, `fresh` only has partial support for SalernOS Kernel 0.2.1.
+Currently, `fresh` only has partial support for SalernOS Kernel 0.2.1/0.2.2.
 
 ## License
 `fresh`, and all other "original" subprojects are distributed under the MIT license. See LICENSE for details.
