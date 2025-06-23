@@ -26,21 +26,21 @@
 #include <sysdeps/intf.h>
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    printf("cat: must specify path to a file\n");
-    return -1;
-  }
+    if (argc < 2) {
+        printf("cat: must specify path to a file\n");
+        return -1;
+    }
 
-  char *path = argv[1];
-  char buf[2048];
-  size_t len = 0;
+    char  *path = argv[1];
+    char   buf[2048];
+    size_t len = 0;
 
-  int fd = sys_open(path, 0);
+    int fd = sys_open(path, 0);
 
-  while (0 != (len = sys_read(fd, buf, 2047))) {
-    buf[len] = 0;
-    sys_write(SYS_STDOUT, buf, len);
-  }
+    while (0 != (len = sys_read(fd, buf, 2047))) {
+        buf[len] = 0;
+        sys_write(SYS_STDOUT, buf, len);
+    }
 
-  return 0;
+    return 0;
 }

@@ -24,16 +24,16 @@
 #include <sysdeps/intf.h>
 
 int main(int argc, char *argv[]) {
-  (void)argc;
-  (void)argv;
-  char used_mem[24] = {0};
-  char tot_mem[24] = {0};
+    (void)argc;
+    (void)argv;
+    char used_mem[24] = {0};
+    char tot_mem[24]  = {0};
 
-  uitoa(SYS_USED_MEMORY, used_mem, 10);
-  uitoa(SYS_TOTAL_MEMORY, tot_mem, 10);
+    uitoa(SYS_USED_MEMORY, used_mem, 10);
+    uitoa(SYS_TOTAL_MEMORY, tot_mem, 10);
 
-  printf("Used memory: %s byte(s)\n", used_mem);
-  printf("Total system memory: %s byte(s)\n", tot_mem);
+    printf("Used memory: %s byte(s)\n", used_mem);
+    printf("Total system memory: %s byte(s)\n", tot_mem);
 
-  return 0;
+    return 0;
 }

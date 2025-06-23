@@ -28,8 +28,8 @@
 #define exit(status) sys_exit(status)
 
 void *malloc(size_t size);
-void free(void *p);
+void  free(void *p);
 void *realloc(void *p, size_t size);
-int atexit(void (*fn)());
+int   atexit(void (*fn)());
 
 #endif

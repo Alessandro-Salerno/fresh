@@ -22,7 +22,7 @@
 #ifndef CRT_STDBOOL_H
 #define CRT_STDBOOL_H
 
-#define true (1)
+#define true  (1)
 #define false (0)
 
 typedef char bool;

@@ -28,7 +28,7 @@
 #define isalpha(c) (isupper(c) || islower(c))
 #define isdigit(c) ((c) >= '0' && (c) <= '9')
 #define isalnum(c) (isalpha(c) || isdigit(c))
-#define iscntrl(c) ((c) < 32)
-#define isprint(c) ((c) > 32)
+#define iscntrl(c) ((int)(c) <= 32)
+#define isprint(c) ((int)(c) > 32)
 
 #endif
