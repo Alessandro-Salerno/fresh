@@ -22,5 +22,9 @@
 
 #include <stddef.h>
 
-int fresh_parse(char *s, size_t len, unsigned long *argbuf, size_t argbufsz,
-                unsigned long *envbuf, size_t envbufsz);
+int fresh_parse(char          *s,
+                size_t         len,
+                unsigned long *argbuf,
+                size_t         argbufsz,
+                unsigned long *envbuf,
+                size_t         envbufsz);

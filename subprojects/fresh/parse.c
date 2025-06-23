@@ -25,69 +25,73 @@
 #include <stdio.h>
 
 int find_next_space(char *s, size_t i, size_t len) {
-  for (; i < len; i++) {
-    if (' ' == s[i]) {
-      return i;
+    for (; i < len; i++) {
+        if (' ' == s[i]) {
+            return i;
+        }
     }
-  }
 
-  return -1;
+    return -1;
 }
 
-int fresh_parse(char *s, size_t len, unsigned long *argbuf, size_t argbufsz,
-                unsigned long *envbuf, size_t envbufsz) {
-  size_t start_idx = 0;
-  size_t argbuuf_next = 0;
-  size_t envbuf_next = 0;
+int fresh_parse(char          *s,
+                size_t         len,
+                unsigned long *argbuf,
+                size_t         argbufsz,
+                unsigned long *envbuf,
+                size_t         envbufsz) {
+    size_t start_idx    = 0;
+    size_t argbuuf_next = 0;
+    size_t envbuf_next  = 0;
 
-  for (size_t i = 0; i < len; i++) {
-    if ('=' == s[i]) {
-      int next_space = find_next_space(s, i, len);
+    for (size_t i = 0; i < len; i++) {
+        if ('=' == s[i]) {
+            int next_space = find_next_space(s, i, len);
 
-      if (-1 == next_space) {
-        return -1;
-      }
+            if (-1 == next_space) {
+                return -1;
+            }
 
-      s[next_space] = 0;
+            s[next_space] = 0;
 
-      if (envbuf_next == envbufsz) {
-        return -2;
-      }
+            if (envbuf_next == envbufsz) {
+                return -2;
+            }
 
-      envbuf[envbuf_next] = (unsigned long)&s[start_idx];
-      envbuf_next++;
-      start_idx = next_space + 1;
-      i = next_space;
-      continue;
+            envbuf[envbuf_next] = (unsigned long)&s[start_idx];
+            envbuf_next++;
+            start_idx = next_space + 1;
+            i         = next_space;
+            continue;
+        }
+
+        if (' ' == s[i]) {
+            if (argbuuf_next >= argbufsz) {
+                return -2;
+            }
+
+            argbuf[argbuuf_next] = (unsigned long)&s[start_idx];
+            argbuuf_next++;
+            s[i]      = 0;
+            start_idx = i + 1;
+            continue;
+        }
     }
 
-    if (' ' == s[i]) {
-      if (argbuuf_next >= argbufsz) {
+    s[len] = 0;
+
+    if (argbuuf_next + 1 >= argbufsz) {
         return -2;
-      }
-
-      argbuf[argbuuf_next] = (unsigned long)&s[start_idx];
-      argbuuf_next++;
-      s[i] = 0;
-      start_idx = i + 1;
-      continue;
     }
-  }
 
-  s[len] = 0;
+    if (envbuf_next >= envbufsz) {
+        return -2;
+    }
 
-  if (argbuuf_next + 1 >= argbufsz) {
-    return -2;
-  }
+    argbuf[argbuuf_next] = (unsigned long)&s[start_idx];
+    argbuuf_next++;
 
-  if (envbuf_next >= envbufsz) {
-    return -2;
-  }
-
-  argbuf[argbuuf_next] = (unsigned long)&s[start_idx];
-  argbuuf_next++;
-
-  argbuf[argbuuf_next] = (unsigned long)NULL;
-  envbuf[envbuf_next] = (unsigned long)NULL;
-  return 0;
+    argbuf[argbuuf_next] = (unsigned long)NULL;
+    envbuf[envbuf_next]  = (unsigned long)NULL;
+    return 0;
 }

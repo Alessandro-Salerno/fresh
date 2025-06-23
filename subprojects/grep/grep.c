@@ -27,54 +27,54 @@
 #include <sysdeps/intf.h>
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    printf("grep: must specify a pattern to recognize\n");
-    return -1;
-  }
-
-  char *pattern = argv[1];
-  size_t pattern_len = strlen(pattern);
-
-  char buf[2048];
-  size_t len = 0;
-  size_t line_start = 0;
-  bool print_rem = false;
-
-  while (0 != (len = sys_read(SYS_STDIN, buf, 2047))) {
-    buf[len] = 0;
-
-    for (size_t i = 0; i < len; i++) {
-      if (0 == strncmp(&buf[i], pattern, pattern_len)) {
-        char c = buf[i];
-        buf[i] = 0;
-        printf("%s", &buf[line_start]);
-        buf[i] = c;
-        c = buf[i + pattern_len];
-        buf[i + pattern_len] = 0;
-        printf("\033[0;34m%s\033[0;0m", &buf[i]);
-        buf[i + pattern_len] = c;
-        line_start = i + pattern_len;
-        i += pattern_len - 1;
-        print_rem = true;
-        continue;
-      }
-
-      if ('\n' == buf[i]) {
-        if (print_rem) {
-          if (line_start < i) {
-            buf[i] = 0;
-            printf("%s", &buf[line_start]);
-            buf[i] = '\n';
-          }
-
-          printf("\n");
-        }
-
-        line_start = 0;
-        print_rem = false;
-      }
+    if (argc < 2) {
+        printf("grep: must specify a pattern to recognize\n");
+        return -1;
     }
-  }
 
-  return 0;
+    char  *pattern     = argv[1];
+    size_t pattern_len = strlen(pattern);
+
+    char   buf[2048];
+    size_t len        = 0;
+    size_t line_start = 0;
+    bool   print_rem  = false;
+
+    while (0 != (len = sys_read(SYS_STDIN, buf, 2047))) {
+        buf[len] = 0;
+
+        for (size_t i = 0; i < len; i++) {
+            if (0 == strncmp(&buf[i], pattern, pattern_len)) {
+                char c = buf[i];
+                buf[i] = 0;
+                printf("%s", &buf[line_start]);
+                buf[i]               = c;
+                c                    = buf[i + pattern_len];
+                buf[i + pattern_len] = 0;
+                printf("\033[0;34m%s\033[0;0m", &buf[i]);
+                buf[i + pattern_len] = c;
+                line_start           = i + pattern_len;
+                i += pattern_len - 1;
+                print_rem = true;
+                continue;
+            }
+
+            if ('\n' == buf[i]) {
+                if (print_rem) {
+                    if (line_start < i) {
+                        buf[i] = 0;
+                        printf("%s", &buf[line_start]);
+                        buf[i] = '\n';
+                    }
+
+                    printf("\n");
+                }
+
+                line_start = 0;
+                print_rem  = false;
+            }
+        }
+    }
+
+    return 0;
 }

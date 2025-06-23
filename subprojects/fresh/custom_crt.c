@@ -20,14 +20,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <fresh/custom_crt.h>
 #include <sysdeps/intf.h>
 
+#include <fresh/custom_crt.h>
+
 size_t frt_gets(char *s, size_t max_len) {
-  int len = sys_read(SYS_STDIN, s, max_len - 1);
-  s[len] = 0;
-  if (len > 0 && '\n' == s[len - 1]) {
-    s[len - 1] = 0;
-  }
-  return len;
+    int len = sys_read(SYS_STDIN, s, max_len - 1);
+    s[len]  = 0;
+    if (len > 0 && '\n' == s[len - 1]) {
+        s[len - 1] = 0;
+    }
+    return len;
 }

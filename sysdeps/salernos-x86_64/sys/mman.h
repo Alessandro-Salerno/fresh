@@ -26,13 +26,13 @@
 #include <stddef.h>
 #include <unistd.h>
 
-#define MAP_FAILED (NULL)
+#define MAP_FAILED    (NULL)
 #define MAP_ANONYMOUS (0x20)
-#define MAP_ANON MAP_ANONYMOUS
-#define MAP_FIXED (0x10)
-#define MAP_PRIVATE (0)
+#define MAP_ANON      MAP_ANONYMOUS
+#define MAP_FIXED     (0x10)
+#define MAP_PRIVATE   (0)
 
-#define PROT_READ (0)
+#define PROT_READ  (0)
 #define PROT_WRITE (0)
 
 #endif

@@ -24,6 +24,6 @@
 #define CRT_STDINT_H
 
 typedef unsigned long long uintmax_t;
-typedef long long intmax_t;
+typedef long long          intmax_t;
 
 #endif

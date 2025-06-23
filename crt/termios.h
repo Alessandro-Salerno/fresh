@@ -26,10 +26,10 @@
 #include <sys/termios.h>
 
 struct winsize {
-  unsigned short ws_row;
-  unsigned short ws_col;
-  unsigned short ws_xpixel;
-  unsigned short ws_ypixel;
+    unsigned short ws_row;
+    unsigned short ws_col;
+    unsigned short ws_xpixel;
+    unsigned short ws_ypixel;
 };
 
 // THE FOLLOWING CODE IS TAKEN FROM THE GNU C LIBRARY
@@ -82,8 +82,8 @@ extern int tcgetattr(int __fd, struct termios *__termios_p);
 
 /* Set the state of FD to *TERMIOS_P.
    Values for OPTIONAL_ACTIONS (TCSA*) are in <bits/termios.h>.  */
-extern int tcsetattr(int __fd, int __optional_actions,
-                     const struct termios *__termios_p);
+extern int
+tcsetattr(int __fd, int __optional_actions, const struct termios *__termios_p);
 
 #ifdef __USE_MISC
 /* Set *TERMIOS_P to indicate raw mode.  */

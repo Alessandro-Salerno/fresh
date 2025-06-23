@@ -32,25 +32,29 @@ extern const int SYS_STDOUT;
 extern const int SYS_STDIN;
 extern const int SYS_STDERR;
 
-extern const char *SYS_OS_NAME;
-extern const char *SYS_KERNEL_NAME;
-extern const char *SYS_CPU_NAME;
-extern const char *SYS_GPU_NAME;
-extern const char *SYS_MEMORY;
+extern const char  *SYS_OS_NAME;
+extern const char  *SYS_KERNEL_NAME;
+extern const char  *SYS_CPU_NAME;
+extern const char  *SYS_GPU_NAME;
+extern const char  *SYS_MEMORY;
 extern const size_t SYS_USED_MEMORY;
 extern const size_t SYS_TOTAL_MEMORY;
 extern const size_t SYS_PAGE_SIZE;
 
 char *sys_getenv(const char *name);
-int sys_write(int fd, const void *s, size_t n);
-int sys_read(int fd, void *buf, size_t n);
-int sys_fork(void);
-int sys_execve(const char *path, char *const argv[], char *const envp[]);
+int   sys_write(int fd, const void *s, size_t n);
+int   sys_read(int fd, void *buf, size_t n);
+int   sys_fork(void);
+int   sys_execve(const char *path, char *const argv[], char *const envp[]);
 __attribute__((noreturn)) void sys_exit(int status);
-int sys_waitpid(int pid, int *status, int flags);
-int sys_open(const char *path, int flags);
-int sys_ioctl(int fd, int op, void *buf);
-void *sys_mmap(void *addr, size_t len, int prot, int flags, int fildes,
-               unsigned long off);
+int                            sys_waitpid(int pid, int *status, int flags);
+int                            sys_open(const char *path, int flags);
+int                            sys_ioctl(int fd, int op, void *buf);
+void                          *sys_mmap(void         *addr,
+                                        size_t        len,
+                                        int           prot,
+                                        int           flags,
+                                        int           fildes,
+                                        unsigned long off);
 
 #endif // !FRESH_SYSDEPS_INTF_H
