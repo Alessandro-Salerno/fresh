@@ -33,8 +33,9 @@ int main(int argc, char *argv[]) {
     uitoa(SYS_USED_MEMORY, used_mem, 10);
     uitoa(SYS_TOTAL_MEMORY, tot_mem, 10);
 
-    printf("Used memory: %s byte(s)\n", used_mem);
-    printf("Total system memory: %s byte(s)\n", tot_mem);
+    printf("kernel: %s\n", SYS_KERNEL_NAME);
+    printf("used memory: %s byte(s)\n", used_mem);
+    printf("total system memory: %s byte(s)\n", tot_mem);
 
     return 0;
 }
