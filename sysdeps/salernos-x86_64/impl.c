@@ -26,35 +26,22 @@
 #include <sys/ioctl.h>
 #include <sysdeps/intf.h>
 
-struct salernos_sysinfo {
-    char          cpu[64];
-    char          gpu[64];
-    char          kernel[64];
-    unsigned long used_mem;
-    unsigned long sys_mem;
-};
-
+// In impl.S
 extern void salernos_sysinfo(void *buf);
 extern int
 salernos_open(const char *path, unsigned long pathlen, unsigned long flags);
 extern void *
 salernos_mmap(unsigned long hint, unsigned long size, unsigned long flags);
 
-const int SYS_STDOUT = 0;
-const int SYS_STDIN  = 1;
-const int SYS_STDERR = 2;
-
-const char  *SYS_OS_NAME     = "SalernOS";
-const char  *SYS_KERNEL_NAME = NULL;
-const char  *SYS_CPU_NAME    = NULL;
-const char  *SYS_GPU_NAME    = NULL;
-const char  *SYS_MEMORY      = NULL;
-const size_t SYS_USED_MEMORY;
-const size_t SYS_TOTAL_MEMORY;
+// These must not be static, because others will use them
+// It is non-standard
+const int    SYS_STDOUT    = 0;
+const int    SYS_STDIN     = 1;
+const int    SYS_STDERR    = 2;
+const char  *SYS_OS_NAME   = "SalernOS";
 const size_t SYS_PAGE_SIZE = 4096;
 
-static char                  **Env = NULL;
-static struct salernos_sysinfo SysInfo;
+static char **Env = NULL;
 
 int tcsetattr(int fd, int opt, void *termios) {
     (void)opt;
@@ -86,6 +73,9 @@ char *sys_getenv(const char *name) {
     return NULL;
 }
 
+// NOTE: this is because SalernOS 0.2.1-0.2.3 had a weird implementation of
+// mmap. DO NOT apply this unless your OS also does weird stuff in there. My
+// advice is to implement sys_mmap correctly.
 void *sys_mmap(void         *addr,
                size_t        len,
                int           prot,
@@ -99,45 +89,21 @@ void *sys_mmap(void         *addr,
     return salernos_mmap(0, len, flags);
 }
 
+// NOTE: same thing as sys_mmap
 int sys_open(const char *path, int flags) {
     return salernos_open(path, strlen(path), (unsigned long)flags);
 }
 
+// This is pretty standard ELF auxv, so you could try to use it for your port as
+// well
 int salernos_trampoline(unsigned long *stackptr) {
 #define STACK_POP() (*(stackptr++))
     int    argc = (int)STACK_POP();
     char **argv = (char **)stackptr;
 
-    while (0 != STACK_POP())
-        ;
+    while (0 != STACK_POP());
 
     Env = (char **)stackptr;
-
-    salernos_sysinfo(&SysInfo);
-    SYS_KERNEL_NAME              = SysInfo.kernel;
-    *(size_t *)&SYS_USED_MEMORY  = SysInfo.used_mem;
-    *(size_t *)&SYS_TOTAL_MEMORY = SysInfo.sys_mem;
-    SYS_CPU_NAME                 = NULL;
-    SYS_GPU_NAME                 = NULL;
-
-    char memory[64];
-    itoa(SysInfo.used_mem / (1024UL * 1024UL), memory, 10);
-    size_t p1_len      = strlen(memory);
-    memory[p1_len]     = ' ';
-    memory[p1_len + 1] = 'M';
-    memory[p1_len + 2] = 'i';
-    memory[p1_len + 3] = 'B';
-    memory[p1_len + 4] = ' ';
-    memory[p1_len + 5] = '/';
-    memory[p1_len + 6] = ' ';
-    itoa(SysInfo.sys_mem / (1024UL * 1024UL), &memory[p1_len + 7], 10);
-    size_t p2_len      = strlen(memory);
-    memory[p2_len]     = ' ';
-    memory[p2_len + 1] = 'M';
-    memory[p2_len + 2] = 'i';
-    memory[p2_len + 3] = 'B';
-    memory[p2_len + 4] = 0;
-    SYS_MEMORY         = memory;
 
     return crt_entry(argc, argv);
 #undef STACK_POP

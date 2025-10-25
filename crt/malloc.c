@@ -15,7 +15,11 @@
 #define TINY_FACTOR  10
 #define SMALL_FACTOR 150
 
-typedef enum zone { tiny, small, large } e_zone;
+typedef enum zone {
+    tiny,
+    small,
+    large
+} e_zone;
 
 /**
  * allocation's metadata
@@ -64,17 +68,17 @@ static t_mnode g_mnode = {NULL, 0, 0};
 void _mnode_init() {
     int pagesize = SYS_PAGE_SIZE;
 
-    g_mnode.tiny_smax =
-        ((TINY_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
-    g_mnode.small_smax =
-        ((SMALL_FACTOR * pagesize - sizeof(t_zone)) / 100) - sizeof(t_alloc);
+    g_mnode.tiny_smax = ((TINY_FACTOR * pagesize - sizeof(t_zone)) / 100) -
+                        sizeof(t_alloc);
+    g_mnode.small_smax = ((SMALL_FACTOR * pagesize - sizeof(t_zone)) / 100) -
+                         sizeof(t_alloc);
 }
 
 void _setAllocType(size_t size, e_zone *alloc_type) {
-    *alloc_type =
-        (0 * (size <= g_mnode.tiny_smax)) +
-        (1 * (size > g_mnode.tiny_smax) && (size <= g_mnode.small_smax)) +
-        (2 * (size > g_mnode.small_smax));
+    *alloc_type = (0 * (size <= g_mnode.tiny_smax)) +
+                  (1 * (size > g_mnode.tiny_smax) &&
+                   (size <= g_mnode.small_smax)) +
+                  (2 * (size > g_mnode.small_smax));
 }
 
 /**
@@ -110,13 +114,13 @@ void _updateVacantMax(t_zone *zone, size_t zonesize) {
     }
     while (head->next) {
         diff = ((char *)head->next) - ((char *)(head->payload + head->size));
-        new_vacant =
-            (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
+        new_vacant = (new_vacant * (diff <= new_vacant)) +
+                     (diff * (diff > new_vacant));
         head = head->next;
     }
     diff = ((char *)zone + zonesize) - ((char *)head->payload + head->size);
-    new_vacant =
-        (new_vacant * (diff <= new_vacant)) + (diff * (diff > new_vacant));
+    new_vacant = (new_vacant * (diff <= new_vacant)) +
+                 (diff * (diff > new_vacant));
     zone->vacant_max = new_vacant;
 }
 
@@ -166,8 +170,12 @@ static void *_create_zone(size_t size, e_zone alloc_type) {
 
     t_zone new_zone = {NULL, NULL, NULL, alloc_type, zonesize - sizeof(t_zone)};
 
-    addr = mmap(
-        NULL, zonesize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+    addr = mmap(NULL,
+                zonesize,
+                PROT_READ | PROT_WRITE,
+                MAP_ANON | MAP_PRIVATE,
+                -1,
+                0);
     if (addr == MAP_FAILED)
         return NULL;
     memcpy(addr, &new_zone, sizeof(new_zone));
@@ -202,8 +210,7 @@ static void _addZone(t_zone *zone) {
         g_mnode.zone = zone;
         return;
     }
-    while (head->next)
-        head = head->next;
+    while (head->next) head = head->next;
     head->next = zone;
     zone->prev = head;
 }
@@ -326,7 +333,7 @@ _soft_realloc(t_zone *zone, t_alloc *alloc, size_t size, size_t zonesize) {
 static char *_realloc(t_zone *zone, t_alloc *alloc, size_t size) {
     size_t zonesize = _getZoneSize(zone->type, zone->start->size);
     char  *res      = _soft_realloc(zone, alloc, size, zonesize);
-    void *new;
+    void  *new;
 
     if (res)
         return res;

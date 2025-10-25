@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
 #include <fresh/parse.h>
-#include <stddef.h>
+#include <fresh/utils.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -28,53 +28,26 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include <fresh/custom_crt.h>
-
 int put(int c) {
-    char buf[2];
-    buf[0] = c;
-    buf[1] = 0;
-
-    if (1 == sys_write(SYS_STDOUT, buf, 1)) {
+    if (1 == sys_write(SYS_STDOUT, &c, 1)) {
         return c;
     }
 
     return EOF;
 }
 
-static void print_rainbow(int len) {
-    int rainbow_colors[7] = {196, 208, 226, 46, 21, 93, 201};
-    int segment_len       = len / 7;
-    int remaining         = len % 7; // Extra chars to distribute
-
-    for (int i = 0; i < 7; i++) {
-        int chars =
-            segment_len + (i < remaining ? 1 : 0); // distribute remainder
-        printf("\033[38;5;%d;48;5;%dm", rainbow_colors[i], rainbow_colors[i]);
-        for (int j = 0; j < chars; j++) {
-            put(' ');
-        }
-    }
-
-    printf("\033[0m\n"); // Reset colors and end line
-}
-
 int main(int argc, char *const argv[]) {
     (void)argc;
     (void)argv;
 
-    struct winsize w;
-    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) != -1) {
-        print_rainbow(w.ws_col);
-    }
-
     printf("Welcome to fresh, the freestanding shell!\n");
     printf("Copyright (C) 2024 - 2025 Alessandro Salerno\n\n");
+    printf("Running on: %s\n\n", SYS_OS_NAME);
 
     while (1) {
         char buf[2048];
-        printf("fresh-0.0.1 # ");
-        frt_gets(buf, 2048);
+        printf("fresh-0.0.2 # ");
+        fresh_gets(buf, 2048);
 
         char *argbuf[8 * 128] = {0};
         char *envbuf[8 * 128] = {0};
@@ -85,32 +58,32 @@ int main(int argc, char *const argv[]) {
                             128,
                             (unsigned long *)envbuf,
                             128)) {
-        case -1:
-            printf("fresh: invalid syntax\n");
-            break;
-
-        case -2:
-            printf("fresh: out of memory\n");
-            break;
-
-        case 0: {
-            int pid = sys_fork();
-            if (pid < 0) {
-                printf("fresh: unable to fork\n");
+            case -1:
+                printf("fresh: invalid syntax\n");
                 break;
-            }
 
-            if (0 == pid) {
-                if (0 != sys_execve(argbuf[0], argbuf, envbuf)) {
-                    printf("fresh: %s: command not found\n", argbuf[0]);
-                    sys_exit(-1);
+            case -2:
+                printf("fresh: out of memory\n");
+                break;
+
+            case 0: {
+                int pid = sys_fork();
+                if (pid < 0) {
+                    printf("fresh: unable to fork\n");
+                    break;
                 }
-                break;
-            }
 
-            int status;
-            sys_waitpid(pid, &status, 0);
-        }
+                if (0 == pid) {
+                    if (0 != sys_execve(argbuf[0], argbuf, envbuf)) {
+                        printf("fresh: %s: command not found\n", argbuf[0]);
+                        sys_exit(-1);
+                    }
+                    break;
+                }
+
+                int status;
+                sys_waitpid(pid, &status, 0);
+            }
         }
     }
 

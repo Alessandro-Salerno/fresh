@@ -20,22 +20,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <stdio.h>
-#include <string.h>
+#include <fresh/utils.h>
 #include <sysdeps/intf.h>
 
-int main(int argc, char *argv[]) {
-    (void)argc;
-    (void)argv;
-    char used_mem[24] = {0};
-    char tot_mem[24]  = {0};
-
-    uitoa(SYS_USED_MEMORY, used_mem, 10);
-    uitoa(SYS_TOTAL_MEMORY, tot_mem, 10);
-
-    printf("kernel: %s\n", SYS_KERNEL_NAME);
-    printf("used memory: %s byte(s)\n", used_mem);
-    printf("total system memory: %s byte(s)\n", tot_mem);
-
-    return 0;
+size_t fresh_gets(char *s, size_t max_len) {
+    int len = sys_read(SYS_STDIN, s, max_len - 1);
+    s[len]  = 0;
+    if (len > 0 && '\n' == s[len - 1]) {
+        s[len - 1] = 0;
+    }
+    return len;
 }

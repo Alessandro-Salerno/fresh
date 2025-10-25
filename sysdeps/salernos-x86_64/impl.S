@@ -20,71 +20,81 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// NOTE: all names starting in sys_ are called by the fresh CRT directly, all
+// names starting in salernos_ are called by impl.C on behalf of the fresh CRT
+
 .global _start
 _start:
-  movq %rsp, %rdi
-  call salernos_trampoline
-  movq %rax, %rdi
-  movq $0x07, %rax
-  int $0x80
+    // salernos_trampoline(unsigned long *stackptr)
+    // x86-64 calling convention: first argment in %rdi
+    movq %rsp, %rdi
+    call salernos_trampoline
+    // x86-64 calling convention: return value in %rax
+    // SalernOS 0.2.1-0.2.2 API: exit(int ecode) = exit(%rdi)
+    movq %rax, %rdi
+    movq $0x07, %rax // exit syscall
+    int $0x80
+
+// NOTE: from here on, we don't move registers because we assume that the caller
+// has already done that, which is reasonable considering they're called from C
 
 .global sys_write
 sys_write:
-  movq $0x01, %rax
-  int $0x80
-  ret
+    movq $0x01, %rax
+    int $0x80
+    ret
 
 .global sys_read
 sys_read:
-  movq $0x02, %rax
-  int $0x80
-  ret
+    movq $0x02, %rax
+    int $0x80
+    ret
 
 .global sys_fork
 sys_fork:
-  movq $0x04, %rax
-  int $0x80
-  ret
+    movq $0x04, %rax
+    int $0x80
+    ret
 
 .global sys_execve
 sys_execve:
-  movq $0x03, %rax
-  int $0x80
-  movq %rdx, %rax
-  ret
+    movq $0x03, %rax
+    int $0x80
+    movq %rdx, %rax
+    ret
 
 .global salernos_sysinfo
 salernos_sysinfo:
-  movq $0x05, %rax
-  int $0x80
-  ret
+    movq $0x05, %rax
+    int $0x80
+    ret
 
 .global sys_exit
 sys_exit:
-  movq $0x07, %rax
-  int $0x80
-  ret
+    movq $0x07, %rax
+    int $0x80
+    ret
 
 .global sys_waitpid
 sys_waitpid:
-  movq $0x06, %rax
-  int $0x80
-  ret
+    movq $0x06, %rax
+    int $0x80
+    ret
 
 .global salernos_open
 salernos_open:
-  movq $0x09, %rax
-  int $0x80
-  ret
+    movq $0x09, %rax
+    int $0x80
+    ret
 
 .global sys_ioctl
 sys_ioctl:
-  mov $0x08, %rax
-  int $0x80
-  ret
+    mov $0x08, %rax
+    int $0x80
+    ret
 
 .global salernos_mmap
 salernos_mmap:
-  mov $0x0A, %rax
-  int $0x80
-  ret
+    mov $0x0A, %rax
+    int $0x80
+    ret

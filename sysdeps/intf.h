@@ -33,12 +33,6 @@ extern const int SYS_STDIN;
 extern const int SYS_STDERR;
 
 extern const char  *SYS_OS_NAME;
-extern const char  *SYS_KERNEL_NAME;
-extern const char  *SYS_CPU_NAME;
-extern const char  *SYS_GPU_NAME;
-extern const char  *SYS_MEMORY;
-extern const size_t SYS_USED_MEMORY;
-extern const size_t SYS_TOTAL_MEMORY;
 extern const size_t SYS_PAGE_SIZE;
 
 char *sys_getenv(const char *name);

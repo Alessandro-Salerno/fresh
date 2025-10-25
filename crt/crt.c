@@ -167,10 +167,8 @@ char *strstr(const char *super, const char *sub) {
 
 char *strcat(char *dest, const char *src) {
     size_t i, j;
-    for (i = 0; 0 != dest[i]; i++)
-        ;
-    for (j = 0; 0 != src[j]; j++)
-        dest[i + j] = src[j];
+    for (i = 0; 0 != dest[i]; i++);
+    for (j = 0; 0 != src[j]; j++) dest[i + j] = src[j];
     dest[i + j] = 0;
     return dest;
 }
@@ -287,47 +285,47 @@ int vprintf(const char *fmt, va_list args) {
         char buf[24];
 
         switch (*ptr) {
-        case '%': {
-            switch (*(++ptr)) {
-            case 'u':
-                (void)uitoa(va_arg(args, unsigned long), buf, 10);
-                ret += sys_write(SYS_STDOUT, buf, strlen(buf));
-                break;
+            case '%': {
+                switch (*(++ptr)) {
+                    case 'u':
+                        (void)uitoa(va_arg(args, unsigned long), buf, 10);
+                        ret += sys_write(SYS_STDOUT, buf, strlen(buf));
+                        break;
 
-            case 'p':
-            case 'x':
-                ret += sys_write(SYS_STDOUT, "0x", 2);
-                (void)uitoa(va_arg(args, unsigned long), buf, 16);
-                ret += sys_write(SYS_STDOUT, buf, strlen(buf));
-                break;
+                    case 'p':
+                    case 'x':
+                        ret += sys_write(SYS_STDOUT, "0x", 2);
+                        (void)uitoa(va_arg(args, unsigned long), buf, 16);
+                        ret += sys_write(SYS_STDOUT, buf, strlen(buf));
+                        break;
 
-            case 'd':
-            case 'i':
-                (void)itoa(va_arg(args, long), buf, 10);
-                ret += sys_write(SYS_STDOUT, buf, strlen(buf));
-                break;
+                    case 'd':
+                    case 'i':
+                        (void)itoa(va_arg(args, long), buf, 10);
+                        ret += sys_write(SYS_STDOUT, buf, strlen(buf));
+                        break;
 
-            case 'c':
-                buf[0] = (char)va_arg(args, int);
+                    case 'c':
+                        buf[0] = (char)va_arg(args, int);
+                        buf[1] = 0;
+                        ret += sys_write(SYS_STDOUT, buf, 1);
+                        break;
+
+                    case 's': {
+                        char *s = va_arg(args, char *);
+                        ret += sys_write(SYS_STDOUT, s, strlen(s));
+                        break;
+                    }
+                }
+
+                break;
+            }
+
+            default:
+                buf[0] = *ptr;
                 buf[1] = 0;
                 ret += sys_write(SYS_STDOUT, buf, 1);
                 break;
-
-            case 's': {
-                char *s = va_arg(args, char *);
-                ret += sys_write(SYS_STDOUT, s, strlen(s));
-                break;
-            }
-            }
-
-            break;
-        }
-
-        default:
-            buf[0] = *ptr;
-            buf[1] = 0;
-            ret += sys_write(SYS_STDOUT, buf, 1);
-            break;
         }
     }
 
